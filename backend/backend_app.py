@@ -8,30 +8,25 @@ limiter = Limiter(app=app, key_func=get_remote_address)
 CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5001"}})
 
 POSTS = [
-    {"post_id": 1, "title": "First post", "content": "This is the first post."},
-    {"post_id": 2, "title": "Second post", "content": "This is the second post."},
+    {"id": 1, "title": "First post", "content": "This is the first post."},
+    {"id": 2, "title": "Second post", "content": "This is the second post."},
 ]
-
 
 @app.errorhandler(404)
 def not_found_error(error):
     return jsonify({"error": str(error)}), 404
 
-
 @app.errorhandler(429)
 def ratelimit_error(error):
     return jsonify({"error": str(error)}), 429
-
 
 @app.errorhandler(405)
 def method_not_allowed(error):
     return jsonify({"error": str(error)}), 405
 
-
 @app.route("/")
 def home():
     return "Welcome to the Masterblog API"
-
 
 @app.route('/api/posts', methods=['GET'])
 @limiter.limit("30 per minute")
@@ -87,7 +82,6 @@ def get_posts():
 
     return jsonify(response), 200
 
-
 @app.route("/api/posts", methods=["POST"])
 def add_post():
     data = request.get_json()
@@ -95,10 +89,10 @@ def add_post():
     if not data or "title" not in data or "content" not in data:
         return jsonify({"error": "Both 'title' and 'content' are required"}), 400
 
-    new_id = max(post["post_id"] for post in POSTS) + 1 if POSTS else 1
+    new_id = max(post["id"] for post in POSTS) + 1 if POSTS else 1
 
     new_post = {
-        "post_id": new_id,
+        "id": new_id,
         "title": data["title"],
         "content": data["content"],
     }
@@ -106,20 +100,19 @@ def add_post():
     return jsonify(new_post), 201
 
 
-@app.route('/api/posts/<int:post_id>', methods=["DELETE"])
-def delete_post(post_id):
-    post = next((post for post in POSTS if post["post_id"] == post_id), None)
+@app.route('/api/posts/<int:id>', methods=["DELETE"])
+def delete_post(id):
+    post = next((post for post in POSTS if post["id"] == id), None)
 
     if post:
         POSTS.remove(post)
-        return jsonify({"message": f"Post with id {post_id} has been deleted successfully."}), 200
+        return jsonify({"message": f"Post with id {id} has been deleted successfully."}), 200
     else:
         return jsonify({"error": "Post not found"}), 404
 
-
-@app.route('/api/posts/<int:post_id>', methods=["PUT"])
-def update_post(post_id):
-    post = next((post for post in POSTS if post["post_id"] == post_id), None)
+@app.route('/api/posts/<int:id>', methods=["PUT"])
+def update_post(id):
+    post = next((post for post in POSTS if post["id"] == id), None)
 
     if not post:
         return jsonify({"error": "Post not found"}), 404
@@ -132,7 +125,6 @@ def update_post(post_id):
         post["content"] = data["content"]
 
     return jsonify(post), 200
-
 
 @app.route('/api/posts/search', methods=["GET"])
 def search_posts():
@@ -151,7 +143,6 @@ def search_posts():
             matching_posts.append(post)
 
     return jsonify(matching_posts), 200
-
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5002, debug=True)
