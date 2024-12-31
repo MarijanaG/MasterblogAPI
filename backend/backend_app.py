@@ -5,7 +5,9 @@ from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
 limiter = Limiter(app=app, key_func=get_remote_address)
-CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5001"}})
+#CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5001"}})
+CORS(app, resources={r"/api/*": {"origins": "http://127.0.0.1:5001"}})
+
 
 POSTS = [
     {"post_id": 1, "title": "First post", "content": "This is the first post."},
