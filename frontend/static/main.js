@@ -30,7 +30,7 @@ function loadPosts() {
                 const postDiv = document.createElement('div');
                 postDiv.className = 'post';
                 postDiv.innerHTML = `<h2>${post.title}</h2><p>${post.content}</p>
-                <button onclick="deletePost(${post.id})">Delete</button>`;
+                <button onclick="deletePost(${post.post_id})">Delete</button>`;
                 postContainer.appendChild(postDiv);
             });
         })
